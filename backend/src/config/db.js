@@ -1,4 +1,4 @@
-// File: backend/config/db.js
+// File: backend/src/config/db.js
 // Database connection configuration
 
 const mongoose = require('mongoose');
@@ -21,4 +21,3 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
-
