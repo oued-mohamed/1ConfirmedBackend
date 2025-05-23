@@ -26,19 +26,30 @@ const app = express();
 const users = [];
 let userIdCounter = 1;
 
-// CORS Configuration
+// CORS Configuration - FIXED
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: [
+    'http://localhost:3000', 
+    'http://127.0.0.1:3000',
+    'https://1-confirmed-front-puce.vercel.app',  // Add your Vercel domain
+    'https://*.vercel.app'  // Allow all Vercel subdomains
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 // For legacy browser support
 }));
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(helmet());
+app.use(helmet({
+  crossOriginEmbedderPolicy: false, // Disable COEP for development
+}));
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -69,13 +80,24 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Health check endpoint
+// Health check endpoints - BOTH PATHS
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'HealthPing Backend is running',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    status: 'healthy'
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'HealthPing Backend is running',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
+    status: 'healthy'
   });
 });
 
@@ -241,6 +263,14 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
 // app.use('/api/messages', require('./src/routes/messageRoutes'));
 // app.use('/api/analytics', require('./src/routes/analyticsRoutes'));
 
+// 404 handler for undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: `Route ${req.originalUrl} not found`
+  });
+});
+
 // Error handling middleware
 app.use(errorHandler);
 
@@ -249,6 +279,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`HealthPing Backend running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`API Health check: http://localhost:${PORT}/api/health`);
   if (logger) {
     logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
   }
