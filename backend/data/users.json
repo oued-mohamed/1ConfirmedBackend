@@ -1,0 +1,17 @@
+[
+  {
+    "firstName": "med",
+    "lastName": "d",
+    "name": "med d",
+    "email": "simooued1@gmail.com",
+    "password": "$2b$10$5UxWxJnQLagNx1bZ854R8egSADNsLbLJrsTahA2OuxpdVo9DyaEXu",
+    "role": "doctor",
+    "phone": "644",
+    "specialization": "dddd",
+    "licenseNumber": "1851",
+    "avatar": "👨‍⚕️",
+    "isActive": true,
+    "createdAt": "2025-05-24T16:28:59.678Z",
+    "id": 1
+  }
+]
